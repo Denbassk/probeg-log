@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1565c0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ПробегЛог">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>ПробегЛог</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,Arial,sans-serif;margin:0;background:#f2f4f7;color:#222}
+  header{background:#1565c0;color:#fff;padding:14px 16px;font-size:20px;font-weight:600}
+  #sync{font-size:13px;padding:6px 16px;background:#0d47a1;color:#fff}
+  .card{background:#fff;margin:12px;padding:14px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  h2{font-size:17px;margin:0 0 10px}
+  label{display:block;font-size:13px;color:#555;margin-top:8px}
+  input{width:100%;padding:11px;font-size:17px;border:1px solid #ccc;border-radius:8px;margin-top:3px}
+  .row{display:flex;gap:10px}.row>div{flex:1}
+  button{padding:12px 14px;font-size:16px;border:0;border-radius:8px;background:#1565c0;color:#fff;margin-top:12px;width:100%}
+  button.sec{background:#e3e8ef;color:#222}
+  button.del{background:none;color:#c62828;width:auto;padding:4px 8px;margin:0;font-size:18px}
+  .preview{margin-top:10px;padding:10px;background:#e8f1fb;border-radius:8px;font-size:15px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+  th,td{border-bottom:1px solid #e0e0e0;padding:6px 4px;text-align:left}
+  th{background:#f5f7fa}
+  .tot{font-weight:700;background:#fffbe6}
+  .btns{display:flex;gap:8px;flex-wrap:wrap}.btns button{flex:1;min-width:130px}
+  .hint{font-size:12px;color:#777;margin-top:8px}
+  #printTitle{display:none}
+  @media print{
+    header,#sync,.noprint{display:none!important}
+    body{background:#fff}.card{box-shadow:none;margin:0}
+    #printTitle{display:block}
+  }
+</style>
+</head>
+<body>
+<header>ПробегЛог</header>
+<div id="sync">Загрузка...</div>
+
+<div class="card noprint">
+  <h2>Новая поездка</h2>
+  <label>Дата</label><input type="date" id="date">
+  <div class="row">
+    <div><label>Спидометр ДО, км</label><input type="number" id="odoStart" inputmode="decimal"></div>
+    <div><label>Спидометр ПОСЛЕ, км</label><input type="number" id="odoEnd" inputmode="decimal"></div>
+  </div>
+  <div class="row">
+    <div><label>Цена топлива, руб/л</label><input type="number" id="price" step="0.01" inputmode="decimal"></div>
+    <div><label>Расход, л/100 км</label><input type="number" id="rate" step="0.1" inputmode="decimal"></div>
+  </div>
+  <label>Цель / маршрут (необязательно)</label><input type="text" id="purpose" placeholder="Офис - клиент - офис">
+  <div class="preview" id="preview">Введите показания спидометра</div>
+  <button onclick="addTrip()">Сохранить поездку</button>
+</div>
+
+<div class="card">
+  <div id="printTitle"><h2>Отчёт о пробеге личного автомобиля</h2></div>
+  <h2 class="noprint">Отчёт за период</h2>
+  <div class="row noprint">
+    <div><label>С</label><input type="date" id="from" onchange="render()"></div>
+    <div><label>По</label><input type="date" id="to" onchange="render()"></div>
+  </div>
+  <div id="periodText"></div>
+  <div style="overflow-x:auto"><table id="table"></table></div>
+  <div class="btns noprint">
+    <button onclick="window.print()">PDF / печать</button>
+    <button onclick="exportCSV()">Excel (CSV)</button>
+  </div>
+</div>
+
+<div class="card noprint">
+  <h2>Хранение на GitHub</h2>
+  <label>Логин GitHub</label><input id="ghOwner" autocapitalize="off" autocomplete="off">
+  <label>Репозиторий с данными (приватный)</label><input id="ghRepo" autocapitalize="off" autocomplete="off">
+  <label>Токен доступа (fine-grained)</label><input id="ghToken" type="password" autocomplete="off">
+  <div class="btns">
+    <button onclick="saveCfg()">Подключить</button>
+    <button class="sec" onclick="sync()">Синхронизировать</button>
+  </div>
+  <div class="btns">
+    <button class="sec" onclick="backup()">Скачать копию</button>
+    <button class="sec" onclick="document.getElementById('file').click()">Восстановить из файла</button>
+    <button class="sec" onclick="logout()">Отключить GitHub</button>
+  </div>
+  <input type="file" id="file" accept=".json" style="display:none" onchange="restore(event)">
+  <div class="hint">Токен хранится только на этом устройстве и должен иметь доступ только к репозиторию с данными.</div>
+</div>
+
+<script>
+const LKEY='probeg_cache_v2',QKEY='probeg_queue_v2',CKEY='probeg_gh_v2';
+const $=id=>document.getElementById(id);
+let db=JSON.parse(localStorage.getItem(LKEY)||'{"trips":[],"settings":{}}');
+let queue=JSON.parse(localStorage.getItem(QKEY)||'[]');
+let cfg=JSON.parse(localStorage.getItem(CKEY)||'{}');
+let sha=null,syncing=false,syncAgain=false;
+
+const r2=n=>Math.round(n*100)/100;
+const fmt=n=>r2(n).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const ruDate=s=>s?s.split('-').reverse().join('.'):'';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function status(t,err){$('sync').textContent=t;$('sync').style.background=err?'#b71c1c':'#0d47a1';}
+function saveLocal(){localStorage.setItem(LKEY,JSON.stringify(db));localStorage.setItem(QKEY,JSON.stringify(queue));}
+
+function init(){
+  const d=new Date();
+  $('date').value=ymd(d);
+  $('from').value=ymd(new Date(d.getFullYear(),d.getMonth(),1));
+  $('to').value=ymd(new Date(d.getFullYear(),d.getMonth()+1,0));
+  $('ghOwner').value=cfg.owner||'';$('ghRepo').value=cfg.repo||'probeg-log-data';$('ghToken').value=cfg.token||'';
+  ['odoStart','odoEnd','price','rate'].forEach(id=>$(id).addEventListener('input',preview));
+  fillDefaults();render();sync();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync();});
+  window.addEventListener('online',sync);
+}
+function fillDefaults(){
+  const s=db.settings||{};
+  if(!$('price').value&&s.price)$('price').value=s.price;
+  if(!$('rate').value&&s.rate)$('rate').value=s.rate;
+  if(!$('odoStart').value&&s.lastOdo)$('odoStart').value=s.lastOdo;
+  preview();
+}
+function calc(s,e,p,r){const km=r2(e-s),l=km*r/100;return{km,liters:r2(l),cost:r2(l*p)};}
+function preview(){
+  const s=+$('odoStart').value,e=+$('odoEnd').value,p=+$('price').value,r=+$('rate').value;
+  if(!s||!e){$('preview').textContent='Введите показания спидометра';return;}
+  if(e<=s){$('preview').textContent='Показание ПОСЛЕ должно быть больше, чем ДО';return;}
+  const c=calc(s,e,p,r);
+  $('preview').innerHTML=`Пробег: <b>${c.km} км</b> · Топливо: <b>${fmt(c.liters)} л</b> · К возмещению: <b>${fmt(c.cost)} руб</b>`;
+}
+
+function applyOp(d,op){
+  if(op.op==='add'&&!d.trips.some(t=>t.id===op.trip.id))d.trips.push(op.trip);
+  if(op.op==='del')d.trips=d.trips.filter(t=>t.id!==op.id);
+  if(op.op==='replace')d.trips=op.trips;
+  if(op.settings)d.settings=op.settings;
+}
+function mutate(op){applyOp(db,op);queue.push(op);saveLocal();render();sync();}
+
+function addTrip(){
+  const t={id:Date.now(),date:$('date').value,odoStart:+$('odoStart').value,odoEnd:+$('odoEnd').value,
+    price:+$('price').value,rate:+$('rate').value,purpose:$('purpose').value.trim()};
+  if(!t.date||!t.odoStart||!t.odoEnd||!t.price||!t.rate)return alert('Заполните все поля');
+  if(t.odoEnd<=t.odoStart)return alert('Показание ПОСЛЕ должно быть больше, чем ДО');
+  Object.assign(t,calc(t.odoStart,t.odoEnd,t.price,t.rate));
+  mutate({op:'add',trip:t,settings:{price:t.price,rate:t.rate,lastOdo:t.odoEnd}});
+  $('odoStart').value=t.odoEnd;$('odoEnd').value='';$('purpose').value='';preview();
+}
+function delTrip(id){if(confirm('Удалить поездку?'))mutate({op:'del',id});}
+
+/* ---------- GitHub ---------- */
+function b64e(s){const b=new TextEncoder().encode(s);let bin='';for(let i=0;i<b.length;i++)bin+=String.fromCharCode(b[i]);return btoa(bin);}
+function b64d(s){const bin=atob(s.replace(/\s/g,''));const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b);}
+const ghRepoUrl=()=>`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`;
+const ghFileUrl=()=>`${ghRepoUrl()}/contents/${cfg.path||'trips.json'}`;
+const ghHeaders=()=>({'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json'});
+function ghErr(status){const e=new Error('GitHub '+status);e.status=status;return e;}
+
+async function pull(){
+  const r=await fetch(ghFileUrl(),{headers:ghHeaders(),cache:'no-store'});
+  if(r.status===404){
+    const rr=await fetch(ghRepoUrl(),{headers:ghHeaders(),cache:'no-store'});
+    if(!rr.ok)throw ghErr(rr.status);
+    sha=null;return{trips:[],settings:{}};
+  }
+  if(!r.ok)throw ghErr(r.status);
+  const j=await r.json();sha=j.sha;
+  const d=JSON.parse(b64d(j.content));d.trips=d.trips||[];d.settings=d.settings||{};return d;
+}
+async function push(data,msg){
+  const body={message:msg,content:b64e(JSON.stringify(data,null,1))};
+  if(sha)body.sha=sha;
+  const r=await fetch(ghFileUrl(),{method:'PUT',headers:ghHeaders(),body:JSON.stringify(body)});
+  if(!r.ok)throw ghErr(r.status);
+  sha=(await r.json()).content.sha;
+}
+async function sync(){
+  if(!(cfg.owner&&cfg.repo&&cfg.token)){status('GitHub не подключён: данные только на этом устройстве',true);return;}
+  if(syncing){syncAgain=true;return;}
+  syncing=true;status('Синхронизация с GitHub...');
+  try{
+    for(let i=0;;i++){
+      try{
+        const remote=await pull();
+        const n=queue.length;
+        if(n){queue.slice(0,n).forEach(op=>applyOp(remote,op));
+          await push(remote,`Журнал: ${n} изм., ${new Date().toLocaleString('ru-RU')}`);}
+        queue=queue.slice(n);queue.forEach(op=>applyOp(remote,op));
+        db=remote;saveLocal();render();fillDefaults();
+        status(`Сохранено на GitHub · поездок: ${db.trips.length} · ${new Date().toLocaleTimeString('ru-RU')}`);
+        break;
+      }catch(e){
+        if((e.status===409||e.status===422)&&i<3)continue;
+        const hint=e.status===401?'неверный или просроченный токен':
+                   e.status===403?'у токена нет права Contents: Read and write':
+                   e.status===404?'репозиторий не найден или токен не имеет к нему доступа':'нет связи';
+        status(`Ошибка GitHub: ${hint}. Не отправлено изменений: ${queue.length}`,true);
+        break;
+      }
+    }
+  }finally{syncing=false;if(syncAgain){syncAgain=false;sync();}}
+}
+function saveCfg(){
+  cfg={owner:$('ghOwner').value.trim(),repo:$('ghRepo').value.trim(),token:$('ghToken').value.trim(),path:'trips.json'};
+  if(!cfg.owner||!cfg.repo||!cfg.token)return alert('Заполните логин, репозиторий и токен');
+  localStorage.setItem(CKEY,JSON.stringify(cfg));sha=null;sync();
+}
+function logout(){
+  if(!confirm('Отключить GitHub на этом устройстве? Данные на GitHub останутся.'))return;
+  cfg={};localStorage.removeItem(CKEY);$('ghToken').value='';sync();
+}
+
+/* ---------- Отчёт ---------- */
+function filtered(){
+  const f=$('from').value,t=$('to').value;
+  return db.trips.filter(x=>(!f||x.date>=f)&&(!t||x.date<=t))
+    .sort((a,b)=>a.date.localeCompare(b.date)||a.odoStart-b.odoStart);
+}
+function render(){
+  const list=filtered();
+  $('periodText').innerHTML=`<p>Период: ${ruDate($('from').value)} — ${ruDate($('to').value)}</p>`;
+  let km=0,l=0,c=0;
+  let h='<tr><th>Дата</th><th>ДО</th><th>ПОСЛЕ</th><th>км</th><th>л/100</th><th>руб/л</th><th>л</th><th>Сумма, руб</th><th>Цель</th><th class="noprint"></th></tr>';
+  list.forEach(t=>{km+=t.km;l+=t.liters;c+=t.cost;
+    h+=`<tr><td>${ruDate(t.date)}</td><td>${t.odoStart}</td><td>${t.odoEnd}</td><td>${t.km}</td><td>${t.rate}</td><td>${fmt(t.price)}</td><td>${fmt(t.liters)}</td><td>${fmt(t.cost)}</td><td>${esc(t.purpose)}</td><td class="noprint"><button class="del" onclick="delTrip(${t.id})">✕</button></td></tr>`;});
+  h+=list.length?`<tr class="tot"><td colspan="3">ИТОГО (${list.length} поездок)</td><td>${r2(km)}</td><td></td><td></td><td>${fmt(l)}</td><td>${fmt(c)}</td><td colspan="2"></td></tr>`
+                :'<tr><td colspan="10">Нет поездок за период</td></tr>';
+  $('table').innerHTML=h;
+}
+function download(name,content,type){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();
+}
+function exportCSV(){
+  const rows=[['Дата','Спидометр до','Спидометр после','Пробег км','Расход л/100км','Цена руб/л','Литры','Сумма руб','Цель']];
+  let km=0,l=0,c=0;
+  filtered().forEach(t=>{km+=t.km;l+=t.liters;c+=t.cost;
+    rows.push([ruDate(t.date),t.odoStart,t.odoEnd,t.km,t.rate,fmt(t.price),fmt(t.liters),fmt(t.cost),'"'+(t.purpose||'').replace(/"/g,'""')+'"']);});
+  rows.push(['ИТОГО','','',r2(km),'','',fmt(l),fmt(c),'']);
+  download(`probeg_${$('from').value}_${$('to').value}.csv`,'\uFEFF'+rows.map(r=>r.join(';')).join('\r\n'),'text/csv;charset=utf-8');
+}
+function backup(){download(`probeg_backup_${ymd(new Date())}.json`,JSON.stringify(db,null,1),'application/json');}
+function restore(e){
+  const f=e.target.files[0];if(!f)return;
+  f.text().then(txt=>{try{
+    const d=JSON.parse(txt);
+    if(!confirm(`Заменить журнал данными из файла (${(d.trips||[]).length} поездок)?`))return;
+    mutate({op:'replace',trips:d.trips||[],settings:d.settings||d.st||{}});
+  }catch{alert('Неверный файл');}});
+  e.target.value='';
+}
+init();
+</script>
+</body>
+</html>
