@@ -35,7 +35,7 @@ button{font:inherit}
 .brand img{width:32px;height:32px;border-radius:10px}
 .pill{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:999px;background:var(--surface2);
   border:1px solid var(--border);color:var(--muted);font-size:12.5px;white-space:nowrap;cursor:pointer}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
 .pill.ok .dot{background:var(--ok);box-shadow:0 0 10px var(--ok)}
 .pill.busy .dot{background:var(--accent);animation:pulse 1s infinite}
 .pill.warn .dot{background:var(--warn)}
@@ -43,13 +43,24 @@ button{font:inherit}
 @keyframes pulse{50%{opacity:.25}}
 .icon-btn{width:42px;height:42px;flex:none;display:grid;place-items:center;border-radius:14px;border:1px solid var(--border);
   background:var(--surface2);color:var(--text);cursor:pointer;padding:0}
+.icon-btn.sm{width:36px;height:36px;border-radius:12px}
 .icon-btn svg{width:20px;height:20px}
-.wrap{max-width:600px;margin:0 auto;padding:4px 14px calc(32px + env(safe-area-inset-bottom))}
+.wrap{max-width:600px;margin:0 auto;padding:4px 14px calc(100px + env(safe-area-inset-bottom))}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-top:14px;transition:border-color .2s,box-shadow .2s}
-[data-theme=light] .card,[data-theme=light] .sec{box-shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.05)}
+[data-theme=light] .card,[data-theme=light] .sec,[data-theme=light] .month{box-shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.05)}
 .card.editing{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 16%,transparent)}
 .card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
 h2{font-size:18px;margin:0;letter-spacing:-.01em}
+.fade{animation:fadeIn .22s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.idle{display:flex;align-items:center;gap:14px}
+.idle .lo{flex:1;min-width:0}
+.idle .lo small{display:block;font-size:12.5px;color:var(--muted)}
+.idle .lo b{font-size:21px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.idle .btn{width:auto;margin:0;padding:0 22px;flex:none}
+.drive{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r-sm);font-weight:600;
+  background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent)}
+.drive .dot{background:var(--accent);animation:pulse 1.2s infinite}
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 12px}
 .field{display:block;margin-top:12px}
 .field>span{display:block;font-size:12.5px;font-weight:500;color:var(--muted);margin:0 0 6px 4px}
@@ -61,8 +72,15 @@ h2{font-size:18px;margin:0;letter-spacing:-.01em}
 .inp.suf input{padding-right:60px}
 .inp i{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-style:normal;font-size:13px;color:var(--muted);pointer-events:none}
 .inp input[type=date]{font-size:15px;padding:0 10px}
+.inp.search input{padding-left:44px;font-size:16px}
+.inp.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted);pointer-events:none}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
+.fuel-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:13px 14px;
+  border-radius:var(--r-sm);background:var(--surface2);border:1px dashed var(--border);color:var(--text);cursor:pointer;font-size:14px;text-align:left}
+.fuel-row span:first-child{color:var(--muted)}
+.fuel-row b{color:var(--text);font-weight:600}
+.link{color:var(--accent);font-weight:600;flex:none}
 .result{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 .metric{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;min-width:0}
 .metric small{display:block;font-size:11.5px;color:var(--muted)}
@@ -71,20 +89,22 @@ input[type=number]{-moz-appearance:textfield}
   border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
 .metric.main b{font-size:24px;color:var(--accent)}
 .warn-msg{margin-top:8px;font-size:13px;color:var(--warn)}
-.warn-msg:empty{display:none}
+.info-msg{margin-top:8px;font-size:13px;color:var(--muted)}
+.warn-msg:empty,.info-msg:empty{display:none}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;margin-top:14px;border:0;border-radius:var(--r-sm);
   font-weight:600;font-size:16px;cursor:pointer;transition:transform .08s,filter .15s;color:var(--text)}
 .btn:active{transform:scale(.98)}
-.btn svg{width:18px;height:18px}
 .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-strong));color:var(--on-accent);
   box-shadow:0 10px 26px -10px color-mix(in srgb,var(--accent) 70%,transparent)}
 .btn.ghost{background:var(--surface2);border:1px solid var(--border)}
 .btn.danger{background:transparent;color:var(--danger);border:1px solid color-mix(in srgb,var(--danger) 40%,transparent)}
+.btn.more{height:44px;margin-top:8px;font-size:14px;color:var(--accent)}
 .row{display:flex;gap:10px}.row>.btn{flex:1}
-.chips{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:12px}.chips .chip{grid-column:span 2;height:44px;padding:0 6px;border-radius:14px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chips .chip:nth-child(-n+2){grid-column:span 3}
-.chips::-webkit-scrollbar{display:none}
 .chip{flex:none;height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;cursor:pointer}
 .chip.on{background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:600}
+.chips{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:12px}
+.chips .chip{grid-column:span 2;height:44px;padding:0 6px;border-radius:14px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chips .chip:nth-child(-n+2){grid-column:span 3}
 .total{margin-top:16px;padding:18px;border-radius:var(--r);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);
   background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 26%,transparent),color-mix(in srgb,var(--accent) 5%,transparent))}
 .total small{font-size:13px;color:var(--muted)}
@@ -93,6 +113,8 @@ input[type=number]{-moz-appearance:textfield}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
 .trips{display:flex;flex-direction:column;gap:8px;margin-top:14px}
 .trip{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r-sm);background:var(--surface2);border:1px solid var(--border)}
+.trip.new{animation:flash 1.8s ease}
+@keyframes flash{0%,40%{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}}
 .trip .d{width:48px;flex:none;text-align:center;padding:7px 0;border-radius:12px;color:var(--accent);
   background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .trip .d b{display:block;font-size:19px;line-height:1}
@@ -106,8 +128,26 @@ input[type=number]{-moz-appearance:textfield}
 .mini{width:34px;height:32px;display:grid;place-items:center;border:0;border-radius:10px;background:transparent;color:var(--muted);cursor:pointer;padding:0}
 .mini svg{width:17px;height:17px}
 .mini:active{background:var(--surface)}
-.mini.del:hover{color:var(--danger)}
 .empty{text-align:center;color:var(--muted);font-size:14px;padding:26px 0}
+.month{margin-top:10px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.month summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 16px}
+.month summary::-webkit-details-marker{display:none}
+.month summary::after{content:"›";font-size:24px;line-height:1;color:var(--muted);transform:rotate(90deg);transition:transform .2s}
+.month[open] summary::after{transform:rotate(-90deg)}
+.month .mh{flex:1;min-width:0}
+.month .mh b{display:block;font-size:16px}
+.month .mh small{font-size:12.5px;color:var(--muted)}
+.month .ms{font-weight:700;color:var(--accent);white-space:nowrap;font-variant-numeric:tabular-nums}
+.month .trips{margin:0;padding:0 12px}
+.month .btn{width:calc(100% - 24px);margin:10px 12px 12px;height:44px;font-size:14px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:8px 14px calc(8px + env(safe-area-inset-bottom));
+  background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);
+  border-top:1px solid var(--border)}
+.tabbar-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tab{height:54px;border:0;border-radius:16px;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;font-size:12px;font-weight:600;cursor:pointer}
+.tab svg{width:22px;height:22px}
+.tab.on{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
 .scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .25s}
 .drawer{position:fixed;top:0;right:0;bottom:0;z-index:50;width:min(420px,92vw);overflow-y:auto;background:var(--bg);border-left:1px solid var(--border);
   padding:calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));transform:translateX(100%);
@@ -119,23 +159,25 @@ body.menu .drawer{transform:none}
 .sec{margin-top:14px;padding:16px;border-radius:var(--r);background:var(--surface);border:1px solid var(--border)}
 .sec h3{margin:0 0 6px;font-size:15px}
 .sync-info{font-size:13.5px;color:var(--muted)}
-details summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding-top:10px;color:var(--accent);font-weight:600;font-size:14px}
-details summary::-webkit-details-marker{display:none}
-details summary::after{content:"›";font-size:22px;line-height:1;transform:rotate(90deg);transition:transform .2s}
-details[open] summary::after{transform:rotate(-90deg)}
+.sec details summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding-top:10px;color:var(--accent);font-weight:600;font-size:14px}
+.sec details summary::-webkit-details-marker{display:none}
+.sec details summary::after{content:"›";font-size:22px;line-height:1;transform:rotate(90deg);transition:transform .2s}
+.sec details[open] summary::after{transform:rotate(-90deg)}
 .hint{font-size:12px;color:var(--muted);margin:10px 0 0}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:var(--surface2);border:1px solid var(--border)}
 .seg button{height:40px;border:0;border-radius:10px;background:transparent;color:var(--text);cursor:pointer}
 .seg button.on{background:var(--accent);color:var(--on-accent);font-weight:600}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:60;max-width:90vw;padding:12px 18px;border-radius:14px;
-  background:var(--text);color:var(--bg);font-size:14px;font-weight:500;opacity:0;pointer-events:none;transform:translate(-50%,16px);transition:.25s}
-.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));z-index:60;width:max-content;max-width:92vw;display:flex;align-items:center;gap:14px;
+  padding:12px 16px;border-radius:14px;background:var(--text);color:var(--bg);font-size:14px;font-weight:500;opacity:0;pointer-events:none;
+  transform:translate(-50%,16px);transition:.25s}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .toast.err{background:var(--danger);color:#fff}
+.toast button{border:0;background:none;color:var(--accent-strong);font-weight:700;padding:4px 2px;cursor:pointer}
 #print{display:none}
 @media print{
   @page{size:A4;margin:14mm}
   body{background:#fff!important;color:#000}
-  .topbar,.wrap,.scrim,.drawer,.toast{display:none!important}
+  .topbar,.wrap,.scrim,.drawer,.toast,.tabbar{display:none!important}
   #print{display:block;font-family:Arial,sans-serif;font-size:10.5pt;color:#000}
   #print h2{font-size:15pt;margin:0 0 8px}
   #print table{width:100%;border-collapse:collapse;margin-top:8px}
@@ -155,27 +197,58 @@ details[open] summary::after{transform:rotate(-90deg)}
   </button>
 </div></header>
 
-<main class="wrap">
+<!-- ================= ГЛАВНАЯ ================= -->
+<main class="wrap" id="vHome">
   <section class="card" id="formCard">
-    <div class="card-h"><h2 id="formTitle">Новая поездка</h2><button class="chip" id="cancelBtn" hidden onclick="cancelEdit()">Отмена</button></div>
-    <label class="field"><span>Дата</span><div class="inp"><input type="date" id="date"></div></label>
-    <div class="grid2">
-      <label class="field"><span>Спидометр до</span><div class="inp suf"><input type="number" id="odoStart" inputmode="decimal" placeholder="0"><i>км</i></div></label>
-      <label class="field"><span>Спидометр после</span><div class="inp suf"><input type="number" id="odoEnd" inputmode="decimal" placeholder="0"><i>км</i></div></label>
-      <label class="field"><span>Цена топлива</span><div class="inp suf"><input type="number" id="price" step="0.01" inputmode="decimal" placeholder="0,00"><i>₴/л</i></div></label>
-      <label class="field"><span>Расход</span><div class="inp suf"><input type="number" id="rate" step="0.1" inputmode="decimal" placeholder="0,0"><i>л/100</i></div></label>
+    <div id="idle">
+      <div class="idle" id="idleNormal">
+        <div class="lo"><small>Последнее показание</small><b id="loVal">—</b></div>
+        <button class="btn primary" onclick="openForm()">+ Поездка</button>
+      </div>
+      <div id="idleDrive" hidden>
+        <div class="drive"><span class="dot"></span><span id="driveText"></span></div>
+        <div class="row">
+          <button class="btn ghost" onclick="cancelDraft()">Отменить</button>
+          <button class="btn primary" onclick="openForm()">Завершить поездку</button>
+        </div>
+      </div>
     </div>
-    <label class="field"><span>Цель / маршрут</span><div class="inp"><input type="text" id="purpose" maxlength="120" placeholder="Офис → клиент → офис"></div></label>
-    <div class="result">
-      <div class="metric"><small>Пробег</small><b id="mKm">—</b></div>
-      <div class="metric"><small>Топливо</small><b id="mL">—</b></div>
-      <div class="metric main"><small>К возмещению</small><b id="mSum">—</b></div>
+
+    <div id="formBody" class="fade" hidden>
+      <div class="card-h">
+        <h2 id="formTitle">Новая поездка</h2>
+        <button class="icon-btn sm" onclick="closeForm()" aria-label="Закрыть">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <label class="field"><span>Дата</span><div class="inp"><input type="date" id="date"></div></label>
+      <div class="grid2">
+        <label class="field"><span>Спидометр до</span><div class="inp suf"><input type="number" id="odoStart" inputmode="decimal" enterkeyhint="next" placeholder="0"><i>км</i></div></label>
+        <label class="field"><span>Спидометр после</span><div class="inp suf"><input type="number" id="odoEnd" inputmode="decimal" enterkeyhint="done" placeholder="0"><i>км</i></div></label>
+      </div>
+      <button type="button" class="fuel-row" id="fuelRow" onclick="setFuel(true)"><span>Топливо: <b id="fuelText"></b></span><span class="link">Изменить</span></button>
+      <div class="grid2" id="fuelInputs" hidden>
+        <label class="field"><span>Цена топлива</span><div class="inp suf"><input type="number" id="price" step="0.01" inputmode="decimal" placeholder="0,00"><i>₴/л</i></div></label>
+        <label class="field"><span>Расход</span><div class="inp suf"><input type="number" id="rate" step="0.1" inputmode="decimal" placeholder="0,0"><i>л/100</i></div></label>
+      </div>
+      <label class="field"><span>Цель / маршрут</span><div class="inp"><input type="text" id="purpose" list="purposes" maxlength="120" autocomplete="off" placeholder="Офис → клиент → офис"></div></label>
+      <datalist id="purposes"></datalist>
+      <div class="result">
+        <div class="metric"><small>Пробег</small><b id="mKm">—</b></div>
+        <div class="metric"><small>Топливо</small><b id="mL">—</b></div>
+        <div class="metric main"><small>К возмещению</small><b id="mSum">—</b></div>
+      </div>
+      <div class="warn-msg" id="warn"></div>
+      <div class="info-msg" id="info"></div>
+      <div class="row">
+        <button class="btn ghost" id="startBtn" onclick="startTrip()">Начать поездку</button>
+        <button class="btn primary" id="saveBtn" onclick="saveTrip()">Сохранить</button>
+      </div>
+      <p class="hint" id="startHint">«Начать поездку» — сохранить показание «до», а «после» ввести по возвращении.</p>
     </div>
-    <div class="warn-msg" id="warn"></div>
-    <button class="btn primary" id="saveBtn" onclick="saveTrip()">Сохранить поездку</button>
   </section>
 
-  <section class="card">
+  <section class="card" id="reportCard">
     <div class="card-h"><h2>Отчёт</h2></div>
     <div class="chips">
       <button class="chip" data-p="month" onclick="setPeriod('month')">Этот месяц</button>
@@ -201,6 +274,32 @@ details[open] summary::after{transform:rotate(-90deg)}
     </div>
   </section>
 </main>
+
+<!-- ================= АРХИВ ================= -->
+<main class="wrap" id="vArchive" hidden>
+  <section class="card">
+    <div class="card-h"><h2>Архив поездок</h2></div>
+    <div class="stats">
+      <div class="metric"><small>Поездок</small><b id="aTrips">0</b></div>
+      <div class="metric"><small>Пробег, км</small><b id="aKm">0</b></div>
+      <div class="metric"><small>Сумма, ₴</small><b id="aSum">0</b></div>
+    </div>
+    <label class="field"><div class="inp search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="q" placeholder="Поиск: маршрут, дата, км" autocomplete="off" oninput="renderArchive()">
+    </div></label>
+  </section>
+  <div id="archive"></div>
+</main>
+
+<nav class="tabbar"><div class="tabbar-in">
+  <button class="tab on" data-tab="home" onclick="tab('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Главная
+  </button>
+  <button class="tab" data-tab="archive" onclick="tab('archive')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/></svg>Архив
+  </button>
+</div></nav>
 
 <div id="print"></div>
 <div class="scrim" onclick="menu(false)"></div>
@@ -251,18 +350,18 @@ details[open] summary::after{transform:rotate(-90deg)}
     </div>
     <input type="file" id="file" accept=".json,application/json" hidden onchange="restore(event)">
   </section>
-  <p class="hint" style="text-align:center">ПробегЛог v3</p>
+  <p class="hint" style="text-align:center">ПробегЛог v5</p>
 </aside>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const LKEY='probeg_cache_v2',QKEY='probeg_queue_v2',CKEY='probeg_gh_v2',TKEY='probeg_theme';
+const LKEY='probeg_cache_v2',QKEY='probeg_queue_v2',CKEY='probeg_gh_v2',TKEY='probeg_theme',DKEY='probeg_draft_v1';
 const $=id=>document.getElementById(id);
 function load(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d;}catch{return d;}}
 let db=load(LKEY,{trips:[],settings:{}});db.trips=db.trips||[];db.settings=db.settings||{};
-let queue=load(QKEY,[]),cfg=load(CKEY,{});
-let sha=null,syncing=false,syncAgain=false,editId=null;
+let queue=load(QKEY,[]),cfg=load(CKEY,{}),draft=load(DKEY,null);
+let sha=null,syncing=false,syncAgain=false,editId=null,flashId=null,openMonths=null;
 
 const nf=new Intl.NumberFormat('uk-UA',{minimumFractionDigits:2,maximumFractionDigits:2});
 const nf0=new Intl.NumberFormat('uk-UA',{maximumFractionDigits:1});
@@ -275,49 +374,105 @@ const ruDate=s=>s?s.split('-').reverse().join('.'):'';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=id=>{const v=$(id).value;return v===''?NaN:+v;};
 const MONTHS=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+const MONTHS_FULL=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function plural(n,a,b,c){n=Math.abs(n)%100;const n1=n%10;if(n>10&&n<20)return c;if(n1>1&&n1<5)return b;if(n1===1)return a;return c;}
 const I={
   edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
   del:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>'
 };
 
 let tt;
-function toast(msg,type){const el=$('toast');el.textContent=msg;el.className='toast show'+(type==='err'?' err':'');clearTimeout(tt);tt=setTimeout(()=>el.className='toast',2800);}
+function toast(msg,type,action){
+  const el=$('toast');el.textContent=msg;
+  if(action){const b=document.createElement('button');b.textContent=action.label;
+    b.onclick=()=>{clearTimeout(tt);el.className='toast';action.fn();};el.appendChild(b);}
+  el.className='toast show'+(type==='err'?' err':'');clearTimeout(tt);
+  tt=setTimeout(()=>el.className='toast',action?5000:2800);
+}
 function saveLocal(){localStorage.setItem(LKEY,JSON.stringify(db));localStorage.setItem(QKEY,JSON.stringify(queue));}
+function saveDraft(){draft?localStorage.setItem(DKEY,JSON.stringify(draft)):localStorage.removeItem(DKEY);}
 function menu(open){document.body.classList.toggle('menu',open);}
 
 function init(){
-  $('date').value=ymd(new Date());
   ['odoStart','odoEnd','price','rate'].forEach(id=>$(id).addEventListener('input',preview));
+  $('formBody').addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.id!=='purpose'){e.preventDefault();
+      if(e.target.id==='odoStart'&&$('odoEnd').value==='')$('odoEnd').focus();else saveTrip();}
+  });
   $('ghOwner').value=cfg.owner||'';$('ghRepo').value=cfg.repo||'probeg-log-data';$('ghToken').value=cfg.token||'';
   $('ghDetails').open=!cfg.token;
-  fillProfile();syncThemeBtns();setPeriod('month');fillDefaults();sync();
+  fillProfile();syncThemeBtns();setPeriod('month');sync();
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync();});
   addEventListener('online',sync);addEventListener('offline',sync);
   addEventListener('keydown',e=>{if(e.key==='Escape')menu(false);});
+  addEventListener('popstate',()=>tab(history.state&&history.state.tab==='archive'?'archive':'home',false));
   if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+/* ---------- Вкладки ---------- */
+function tab(name,push=true){
+  const a=name==='archive';
+  $('vHome').hidden=a;$('vArchive').hidden=!a;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===name));
+  const inArch=history.state&&history.state.tab==='archive';
+  if(push&&a&&!inArch)history.pushState({tab:'archive'},'');
+  if(push&&!a&&inArch)history.back();
+  scrollTo(0,0);
 }
 
 /* ---------- Форма ---------- */
 function lastOdo(){return db.trips.length?Math.max(...db.trips.map(t=>+t.odoEnd||0)):(db.settings.lastOdo||'');}
-function fillDefaults(){
-  if(editId)return;
-  const s=db.settings,lo=lastOdo();
-  if($('price').value===''&&s.price)$('price').value=s.price;
-  if($('rate').value===''&&s.rate)$('rate').value=s.rate;
-  if($('odoStart').value===''&&lo)$('odoStart').value=lo;
-  preview();
+function renderIdle(){
+  const lo=lastOdo();
+  $('loVal').textContent=lo?nf0.format(lo)+' км':'Журнал пуст';
+  $('idleNormal').hidden=!!draft;$('idleDrive').hidden=!draft;
+  if(draft)$('driveText').textContent=`В пути с ${draft.time} · старт ${nf0.format(draft.odoStart)} км`;
+}
+function showForm(open){
+  $('idle').hidden=open;$('formBody').hidden=!open;
+  $('formCard').classList.toggle('editing',open&&!!editId);
+}
+function clearFields(){['odoStart','odoEnd','price','rate','purpose'].forEach(i=>$(i).value='');$('warn').textContent='';$('info').textContent='';}
+function openForm(){
+  editId=null;clearFields();
+  const s=db.settings,d=draft;
+  $('date').value=d?d.date:ymd(new Date());
+  const st=d?d.odoStart:lastOdo();if(st!==''&&st!=null)$('odoStart').value=st;
+  if(d&&d.purpose)$('purpose').value=d.purpose;
+  const p=(d&&d.price)||s.price,r=(d&&d.rate)||s.rate;
+  if(p)$('price').value=p;if(r)$('rate').value=r;
+  setFuel(!(p&&r));
+  $('formTitle').textContent=d?'Завершение поездки':'Новая поездка';
+  $('saveBtn').textContent='Сохранить';
+  showForm(true);preview();
+  ($('odoStart').value!==''?$('odoEnd'):$('odoStart')).focus();
+}
+function closeForm(){editId=null;clearFields();showForm(false);renderIdle();}
+function setFuel(open){$('fuelInputs').hidden=!open;$('fuelRow').hidden=open;updFuelText();}
+function updFuelText(){
+  const p=num('price'),r=num('rate');
+  $('fuelText').textContent=(p>0?nf.format(p)+' ₴/л':'цена не указана')+' · '+(r>0?nf0.format(r)+' л/100 км':'расход не указан');
 }
 function calc(s,e,p,r){const km=r2(e-s);return{km,liters:r2(km*r/100),cost:r2(km*r/100*p)};}
 function preview(){
   const s=num('odoStart'),e=num('odoEnd'),p=num('price'),r=num('rate');
-  let km='—',l='—',c='—',w='';
+  let km='—',l='—',c='—',w='',info='';
   if(s>=0&&e>0){
     if(e<=s)w='Показание «после» должно быть больше, чем «до»';
-    else{const x=calc(s,e,p||0,r||0);km=nf0.format(x.km)+' км';
+    else{
+      const x=calc(s,e,p||0,r||0);km=nf0.format(x.km)+' км';
       if(r>0){l=nf.format(x.liters)+' л';if(p>0)c=money(x.cost);}
-      if(x.km>2000)w='Проверьте показания: больше 2000 км за поездку';}
+      const ov=db.trips.find(t=>t.id!==editId&&s<t.odoEnd&&e>t.odoStart);
+      if(ov)w=`Пересекается с поездкой ${ruDate(ov.date)} (${ov.odoStart} → ${ov.odoEnd} км)`;
+      else if(x.km>2000)w='Проверьте показания: больше 2000 км за поездку';
+    }
   }
-  $('mKm').textContent=km;$('mL').textContent=l;$('mSum').textContent=c;$('warn').textContent=w;
+  if(!editId&&s>=0){const lo=lastOdo();if(lo&&s>lo)info=`С последней записи ${nf0.format(r2(s-lo))} км не учтены как рабочий пробег`;}
+  $('mKm').textContent=km;$('mL').textContent=l;$('mSum').textContent=c;
+  $('warn').textContent=w;$('info').textContent=info;
+  const hideStart=!!editId||!!draft||$('odoEnd').value!=='';
+  $('startBtn').hidden=hideStart;$('startHint').hidden=hideStart;
+  updFuelText();
 }
 function applyOp(d,op){
   if(op.op==='add'&&!d.trips.some(t=>t.id===op.trip.id))d.trips.push(op.trip);
@@ -331,35 +486,47 @@ function mutate(op){applyOp(db,op);queue.push(op);saveLocal();render();sync();}
 function saveTrip(){
   const t={id:editId||Date.now(),date:$('date').value,odoStart:num('odoStart'),odoEnd:num('odoEnd'),
     price:num('price'),rate:num('rate'),purpose:$('purpose').value.trim()};
-  if(!t.date||!(t.odoStart>=0)||!(t.odoEnd>0)||!(t.price>0)||!(t.rate>0))return toast('Заполните дату, спидометр, цену и расход','err');
+  if(!t.date)return toast('Укажите дату','err');
+  if(!(t.odoStart>=0)||!(t.odoEnd>0))return toast('Введите показания спидометра','err');
   if(t.odoEnd<=t.odoStart)return toast('Показание «после» должно быть больше, чем «до»','err');
+  if(!(t.price>0)||!(t.rate>0)){setFuel(true);return toast('Укажите цену топлива и расход','err');}
   Object.assign(t,calc(t.odoStart,t.odoEnd,t.price,t.rate));
   navigator.vibrate?.(15);
-  if(editId){mutate({op:'upd',trip:t});toast('Поездка обновлена');cancelEdit();return;}
+  flashId=t.id;setTimeout(()=>flashId=null,1900);
+  const f=$('from').value,to=$('to').value,outside=(f&&t.date<f)||(to&&t.date>to);
+  const note=outside?' · вне выбранного периода':'';
+  if(editId){mutate({op:'upd',trip:t});closeForm();toast('Поездка обновлена'+note);return;}
+  if(draft){draft=null;saveDraft();}
   mutate({op:'add',trip:t,settings:{price:t.price,rate:t.rate}});
-  toast('Сохранено · '+money(t.cost));
-  $('odoStart').value=t.odoEnd;$('odoEnd').value='';$('purpose').value='';preview();
+  closeForm();toast('Сохранено · '+money(t.cost)+note);
+}
+function startTrip(){
+  if($('odoStart').value==='')return toast('Введите показание «до»','err');
+  draft={date:$('date').value||ymd(new Date()),odoStart:num('odoStart'),purpose:$('purpose').value.trim(),
+    price:num('price')||null,rate:num('rate')||null,
+    time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})};
+  saveDraft();closeForm();navigator.vibrate?.(15);
+  toast('Поездка начата. По возвращении нажмите «Завершить»');
+}
+function cancelDraft(){
+  const d=draft;draft=null;saveDraft();renderIdle();
+  toast('Поездка отменена','',{label:'Вернуть',fn:()=>{draft=d;saveDraft();renderIdle();}});
 }
 function editTrip(id){
   const t=db.trips.find(x=>x.id===id);if(!t)return;
-  editId=id;
+  if($('vHome').hidden)tab('home');
+  editId=id;clearFields();
   $('date').value=t.date;$('odoStart').value=t.odoStart;$('odoEnd').value=t.odoEnd;
   $('price').value=t.price;$('rate').value=t.rate;$('purpose').value=t.purpose||'';
-  $('formCard').classList.add('editing');$('formTitle').textContent='Редактирование';
-  $('saveBtn').textContent='Сохранить изменения';$('cancelBtn').hidden=false;
-  preview();scrollTo({top:0,behavior:'smooth'});
-}
-function cancelEdit(){
-  editId=null;['odoStart','odoEnd','price','rate','purpose'].forEach(i=>$(i).value='');
-  $('date').value=ymd(new Date());$('formCard').classList.remove('editing');
-  $('formTitle').textContent='Новая поездка';$('saveBtn').textContent='Сохранить поездку';$('cancelBtn').hidden=true;
-  fillDefaults();
+  setFuel(true);
+  $('formTitle').textContent='Редактирование';$('saveBtn').textContent='Сохранить изменения';
+  showForm(true);preview();scrollTo({top:0,behavior:'smooth'});
 }
 function delTrip(id){
   const t=db.trips.find(x=>x.id===id);if(!t)return;
-  if(!confirm(`Удалить поездку ${ruDate(t.date)} (${nf0.format(t.km)} км, ${money(t.cost)})?`))return;
-  if(editId===id)cancelEdit();
-  mutate({op:'del',id});toast('Поездка удалена');
+  if(editId===id)closeForm();
+  mutate({op:'del',id});
+  toast(`Удалено: ${ruDate(t.date)}, ${money(t.cost)}`,'',{label:'Отменить',fn:()=>mutate({op:'add',trip:t})});
 }
 
 /* ---------- Период и отчёт ---------- */
@@ -375,27 +542,64 @@ function setPeriod(p){
 }
 function customPeriod(){document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));render();}
 function periodLabel(){const f=$('from').value,t=$('to').value;if(!f&&!t)return'за всё время';return(f?ruDate(f):'…')+' — '+(t?ruDate(t):'…');}
+const byDateDesc=(a,b)=>b.date.localeCompare(a.date)||b.odoStart-a.odoStart;
 function filtered(){
   const f=$('from').value,t=$('to').value;
-  return db.trips.filter(x=>(!f||x.date>=f)&&(!t||x.date<=t))
-    .sort((a,b)=>b.date.localeCompare(a.date)||b.odoStart-a.odoStart);
+  return db.trips.filter(x=>(!f||x.date>=f)&&(!t||x.date<=t)).sort(byDateDesc);
 }
 function totals(list){return list.reduce((a,t)=>(a.km+=+t.km||0,a.l+=+t.liters||0,a.c+=+t.cost||0,a),{km:0,l:0,c:0});}
+function tripHTML(t){
+  const[,m,d]=t.date.split('-');
+  return `<div class="trip${t.id===flashId?' new':''}"><div class="d"><b>${+d}</b><small>${MONTHS[+m-1]}</small></div>
+    <div class="info"><div class="t1">${esc(t.purpose)||'Поездка'}</div>
+    <div class="t2">${t.odoStart} → ${t.odoEnd} · ${nf0.format(t.km)} км · ${nf.format(t.liters)} л</div></div>
+    <div class="right"><div class="sum">${money(t.cost)}</div><div class="acts">
+    <button class="mini" onclick="editTrip(${t.id})" aria-label="Изменить">${I.edit}</button>
+    <button class="mini" onclick="delTrip(${t.id})" aria-label="Удалить">${I.del}</button></div></div></div>`;
+}
+function renderPurposes(){
+  const m={};db.trips.forEach(t=>{const p=(t.purpose||'').trim();if(p)m[p]=(m[p]||0)+1;});
+  $('purposes').innerHTML=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,30).map(([p])=>`<option value="${esc(p)}">`).join('');
+}
 function render(){
   const list=filtered(),T=totals(list);
   $('sTotal').textContent=money(T.c);$('sPeriod').textContent=periodLabel();
   $('sTrips').textContent=list.length;$('sKm').textContent=nf0.format(r2(T.km));$('sL').textContent=nf.format(r2(T.l));
-  $('trips').innerHTML=list.length?list.map(t=>{
-    const[,m,d]=t.date.split('-');
-    return `<div class="trip"><div class="d"><b>${+d}</b><small>${MONTHS[+m-1]}</small></div>
-      <div class="info"><div class="t1">${esc(t.purpose)||'Поездка'}</div>
-      <div class="t2">${t.odoStart} → ${t.odoEnd} · ${nf0.format(t.km)} км · ${nf.format(t.liters)} л</div></div>
-      <div class="right"><div class="sum">${money(t.cost)}</div><div class="acts">
-      <button class="mini" onclick="editTrip(${t.id})" aria-label="Изменить">${I.edit}</button>
-      <button class="mini del" onclick="delTrip(${t.id})" aria-label="Удалить">${I.del}</button></div></div></div>`;
-  }).join(''):'<div class="empty">Нет поездок за выбранный период</div>';
-  renderPrint(list.slice().reverse(),T);
+  const LIMIT=5;
+  $('trips').innerHTML=list.length
+    ?list.slice(0,LIMIT).map(tripHTML).join('')+(list.length>LIMIT?`<button class="btn ghost more" onclick="tab('archive')">Ещё ${list.length-LIMIT} — в архиве</button>`:'')
+    :'<div class="empty">Нет поездок за выбранный период</div>';
+  renderPrint(list.slice().reverse(),T);renderIdle();renderPurposes();renderArchive();
 }
+
+/* ---------- Архив ---------- */
+function renderArchive(){
+  const q=$('q').value.trim().toLowerCase();
+  const all=db.trips.slice().sort(byDateDesc),A=totals(all);
+  $('aTrips').textContent=all.length;$('aKm').textContent=nf0.format(r2(A.km));$('aSum').textContent=nf.format(r2(A.c));
+  const list=q?all.filter(t=>[t.purpose,ruDate(t.date),t.odoStart,t.odoEnd].join(' ').toLowerCase().includes(q)):all;
+  if(!list.length){$('archive').innerHTML=`<div class="card empty">${q?'Ничего не найдено':'Поездок пока нет'}</div>`;return;}
+  const groups=new Map();
+  list.forEach(t=>{const k=t.date.slice(0,7);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(t);});
+  if(!openMonths)openMonths=new Set([groups.keys().next().value]);
+  $('archive').innerHTML=[...groups].map(([k,ts])=>{
+    const G=totals(ts),[y,m]=k.split('-'),open=q||openMonths.has(k);
+    return `<details class="month" data-m="${k}"${open?' open':''} ontoggle="monthToggle(this)">
+      <summary><div class="mh"><b>${MONTHS_FULL[+m-1]} ${y}</b>
+      <small>${ts.length} ${plural(ts.length,'поездка','поездки','поездок')} · ${nf0.format(r2(G.km))} км · ${nf.format(r2(G.l))} л</small></div>
+      <div class="ms">${money(G.c)}</div></summary>
+      <div class="trips">${ts.map(tripHTML).join('')}</div>
+      <button class="btn ghost" onclick="monthReport('${k}')">Отчёт за этот месяц</button></details>`;
+  }).join('');
+}
+function monthToggle(el){if($('q').value.trim()||!openMonths)return;el.open?openMonths.add(el.dataset.m):openMonths.delete(el.dataset.m);}
+function monthReport(k){
+  const[y,m]=k.split('-').map(Number);
+  $('from').value=ymd(new Date(y,m-1,1));$('to').value=ymd(new Date(y,m,0));
+  customPeriod();tab('home');
+  setTimeout(()=>$('reportCard').scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+
 function renderPrint(list,T){
   const s=db.settings;
   $('print').innerHTML=`<h2>Отчёт о пробеге личного автомобиля</h2>
@@ -432,10 +636,7 @@ function fillProfile(){
   if(a!==$('pCar'))$('pCar').value=db.settings.car||'';
 }
 function saveProfile(){mutate({op:'profile',settings:{name:$('pName').value.trim(),car:$('pCar').value.trim()}});toast('Данные для отчёта сохранены');}
-function setTheme(t){
-  document.documentElement.dataset.theme=t;localStorage.setItem(TKEY,t);
-  document.querySelector('meta[name=theme-color]').content=t==='dark'?'#081013':'#f2f7f7';syncThemeBtns();
-}
+function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem(TKEY,t);syncThemeBtns();}
 function syncThemeBtns(){const t=document.documentElement.dataset.theme;
   document.querySelector('meta[name=theme-color]').content=t==='dark'?'#081013':'#f2f7f7';
   document.querySelectorAll('[data-theme-btn]').forEach(b=>b.classList.toggle('on',b.dataset.themeBtn===t));}
@@ -488,7 +689,7 @@ async function sync(){
         if(n){queue.slice(0,n).forEach(op=>applyOp(remote,op));
           await push(remote,`Журнал: ${n} изм., ${new Date().toLocaleString('ru-RU')}`);}
         queue=queue.slice(n);queue.forEach(op=>applyOp(remote,op));
-        db=remote;saveLocal();render();fillDefaults();fillProfile();
+        db=remote;saveLocal();render();fillProfile();
         status('ok','Сохранено',`Синхронизировано в ${new Date().toLocaleTimeString('ru-RU')} · поездок в журнале: ${db.trips.length}`);
         ok=true;break;
       }catch(e){
